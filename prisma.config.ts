@@ -3,6 +3,7 @@ import { defineConfig } from 'prisma/config'
 export default defineConfig({
   schema: './prisma/schema.prisma',
   datasource: {
+    // Use Turso when env var is set, otherwise fall back to local SQLite
     url: process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL || 'file:./dev.db',
   },
   migrations: {
