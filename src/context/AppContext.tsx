@@ -26,13 +26,6 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
-const DEFAULT_ADMIN_USER: User = {
-  id: 'user-admin',
-  email: 'admin@video.cms',
-  name: 'Platform Admin',
-  role: 'ADMIN'
-}
-
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [favorites, setFavorites] = useState<string[]>([])
@@ -43,14 +36,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Hydrate states from localStorage
   useEffect(() => {
-    // Auto-login as admin for demo purposes, so user can test admin functionality out-of-the-box
-    const storedUser = localStorage.getItem('apex_user')
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser))
-    } else {
-      localStorage.setItem('apex_user', JSON.stringify(DEFAULT_ADMIN_USER))
-      setCurrentUser(DEFAULT_ADMIN_USER)
-    }
+    // No auto-login — visitors are anonymous by default
 
     const storedFavs = localStorage.getItem('apex_favorites')
     if (storedFavs) {
