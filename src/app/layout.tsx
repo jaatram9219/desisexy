@@ -37,8 +37,8 @@ export default async function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
-      <head>
-        {/* Dynamic Head Ad Script / Meta injection */}
+      <body className="min-h-full flex flex-col bg-brand-bg text-white">
+        {/* Head script injection helper executed in body to prevent overriding Next.js automatic head stylesheet injections */}
         {headCode && (
           <script
             id="ad-injection-head"
@@ -64,8 +64,7 @@ export default async function RootLayout({
             }}
           />
         )}
-      </head>
-      <body className="min-h-full flex flex-col bg-brand-bg text-white">
+
         {/* Dynamic Body Header Ad Script injection */}
         {bodyCode && (
           <div 
