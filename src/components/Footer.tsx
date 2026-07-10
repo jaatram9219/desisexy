@@ -51,40 +51,37 @@ export default function Footer() {
 
         {/* Col 2: Categories */}
         <div>
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Popular Categories</h4>
+          <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Categories</h4>
           <ul className="space-y-2 text-xs text-gray-400 font-semibold">
-            <li><Link href="/category/movies-trailers" className="hover:text-brand-accent transition">Movies & Trailers</Link></li>
-            <li><Link href="/category/music-concerts" className="hover:text-brand-accent transition">Music & Live Shows</Link></li>
-            <li><Link href="/category/gaming-esport" className="hover:text-brand-accent transition">Gaming & Esports</Link></li>
-            <li><Link href="/category/tech-science" className="hover:text-brand-accent transition">Tech & Science Streams</Link></li>
+            <li><Link href="/categories" className="hover:text-brand-accent transition">All Categories</Link></li>
+            <li><Link href="/search?q=Indian" className="hover:text-brand-accent transition">Indian</Link></li>
+            <li><Link href="/search?q=Bhabhi" className="hover:text-brand-accent transition">Bhabhi</Link></li>
+            <li><Link href="/search?q=Homemade" className="hover:text-brand-accent transition">Homemade</Link></li>
+            <li><Link href="/search?q=Hindi" className="hover:text-brand-accent transition">Hindi Audio</Link></li>
           </ul>
         </div>
 
         {/* Col 3: Navigation */}
         <div>
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Links</h4>
+          <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Navigation</h4>
           <ul className="space-y-2 text-xs text-gray-400 font-semibold">
-            <li><Link href="/" className="hover:text-brand-accent transition">Home Dashboard</Link></li>
+            <li><Link href="/" className="hover:text-brand-accent transition">Home</Link></li>
             <li><Link href="/trending" className="hover:text-brand-accent transition">Trending Videos</Link></li>
             <li><Link href="/latest" className="hover:text-brand-accent transition">Latest Uploads</Link></li>
-            <li><Link href="/admin" className="hover:text-brand-accent transition">Admin Panel</Link></li>
+            <li><Link href="/categories" className="hover:text-brand-accent transition">Browse Categories</Link></li>
+            <li><Link href="/search" className="hover:text-brand-accent transition">Search</Link></li>
           </ul>
         </div>
 
-        {/* Col 4: Newsletter */}
-        <div className="space-y-4">
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider">Stay Updated</h4>
-          <p className="text-xs text-gray-400 leading-relaxed">Subscribe to get notifications about new trending videos and feature updates.</p>
-          <div className="flex">
-            <input 
-              type="email" 
-              placeholder="Email address..." 
-              className="bg-[#161616] border border-white/10 rounded-l-lg px-3 py-2 text-xs text-white outline-none w-full focus:border-brand-accent transition"
-            />
-            <button className="bg-brand-accent hover:bg-red-600 text-white px-3 py-2 rounded-r-lg font-bold transition">
-              <Mail className="w-4 h-4" />
-            </button>
-          </div>
+        {/* Col 4: Legal */}
+        <div>
+          <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Legal & Help</h4>
+          <ul className="space-y-2 text-xs text-gray-400 font-semibold">
+            <li><Link href="/privacy" className="hover:text-brand-accent transition">Privacy Policy</Link></li>
+            <li><Link href="/terms" className="hover:text-brand-accent transition">Terms of Service</Link></li>
+            <li><Link href="/support" className="hover:text-brand-accent transition">Support Center</Link></li>
+            <li><a href="mailto:admin@desisexy.in" className="hover:text-brand-accent transition">Contact Us</a></li>
+          </ul>
         </div>
       </div>
 

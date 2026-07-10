@@ -143,10 +143,9 @@ export default function WatchPageClient({ video, relatedVideos, categoryName }: 
               {video.title}
             </h1>
 
-            {/* Views, Date, Actions row */}
+            {/* Date, Actions row */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-t border-b border-white/5 py-4 text-xs text-gray-400 font-semibold">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                <span className="flex items-center"><Eye className="w-4 h-4 mr-1.5 text-brand-accent" /> {currentViews.toLocaleString()} views</span>
                 <span className="flex items-center"><Calendar className="w-4 h-4 mr-1.5" /> {new Date(video.createdAt).toLocaleDateString()}</span>
                 
                 {/* Rating Meter */}

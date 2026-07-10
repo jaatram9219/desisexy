@@ -155,13 +155,9 @@ export default function VideoCard({ video }: VideoCardProps) {
           </h3>
         </Link>
 
-        {/* Metadata: Views, Ratings & Date */}
+        {/* Metadata: Rating & Date */}
         <div className="flex items-center justify-between text-[10px] text-gray-500 font-extrabold mt-2.5 pt-2 border-t border-white/5">
           <div className="flex items-center space-x-2">
-            <span className="flex items-center">
-              {formatViews(views)} views
-            </span>
-            <span className="text-gray-700 font-normal">|</span>
             <span className="flex items-center text-brand-accent text-[9px]">
               <ThumbsUp className="w-2.5 h-2.5 mr-0.5 fill-brand-accent" /> {rating}%
             </span>

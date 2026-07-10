@@ -4,9 +4,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { 
-  Search, Play, Heart, History, User, Settings, 
-  LogOut, Shield, ChevronDown, Flame, Compass, 
-  Clock, Award, Sun, Moon, Film, Sparkles, Menu, X, Terminal
+  Search, Heart, History,
+  LogOut, ChevronDown, Flame, Compass, 
+  Clock, Award, Sun, Moon, Film, Sparkles, Menu, X
 } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -75,16 +75,7 @@ export default function Header() {
     router.push(`/search?q=${encodeURIComponent(term)}`)
   }
 
-  const handleRoleChange = (role: 'OWNER' | 'ADMIN' | 'MODERATOR' | 'USER') => {
-    const updatedUser = {
-      ...currentUser!,
-      role,
-      name: role === 'OWNER' ? 'System Owner' : role === 'ADMIN' ? 'Platform Admin' : role === 'MODERATOR' ? 'Platform Moderator' : 'Standard User'
-    }
-    setCurrentUser(updatedUser)
-    setProfileDropdownOpen(false)
-    router.refresh()
-  }
+
 
   return (
     <header className="w-full z-50 flex flex-col border-b border-white/5 bg-[#0B0B0B]/90 backdrop-blur-md sticky top-0">
@@ -218,39 +209,7 @@ export default function Header() {
                       </div>
                     </div>
 
-                    {/* Quick switch roles for testing permission-based pages */}
-                    <div className="p-2 border-b border-white/5 bg-neutral-900/50 rounded-lg m-1">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center">
-                        <Terminal className="w-3 h-3 mr-1 text-brand-primary" /> Dev Sandbox: Swap Role
-                      </p>
-                      <div className="grid grid-cols-2 gap-1">
-                        {(['OWNER', 'ADMIN', 'MODERATOR', 'USER'] as const).map((r) => (
-                          <button
-                            key={r}
-                            onClick={() => handleRoleChange(r)}
-                            className={`px-1.5 py-1 text-[9px] font-extrabold rounded text-center transition-colors ${
-                              currentUser.role === r 
-                                ? 'bg-brand-primary text-black' 
-                                : 'bg-black/45 hover:bg-neutral-800 text-gray-300'
-                            }`}
-                          >
-                            {r}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
                     <div className="py-1">
-                      {/* Admin Links */}
-                      {(currentUser.role === 'ADMIN' || currentUser.role === 'OWNER') && (
-                        <Link
-                          href="/admin"
-                          onClick={() => setProfileDropdownOpen(false)}
-                          className="flex items-center px-3 py-2 text-sm font-semibold rounded-lg text-gray-300 hover:text-white hover:bg-white/5 transition"
-                        >
-                          <Shield className="w-4 h-4 mr-2.5 text-brand-primary" /> Admin Panel
-                        </Link>
-                      )}
                       
                       <Link
                         href="/favorites"
@@ -286,13 +245,6 @@ export default function Header() {
                 )}
               </AnimatePresence>
             </div>
-          ) : (
-            <button
-              onClick={() => handleRoleChange('ADMIN')}
-              className="px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-accent text-black font-extrabold text-xs uppercase tracking-wider rounded-full hover:scale-105 transition"
-            >
-              Sign In
-            </button>
           )}
 
           {/* Mobile menu button */}
