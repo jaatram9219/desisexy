@@ -1,40 +1,70 @@
-import { v2 as cloudinary } from 'cloudinary'
+/**
+ * Thumbnail URL resolver for video imports.
+ * 
+ * Strategy: Store the direct EPorner CDN URL as-is.
+ * - EPorner's static CDN (static-eu-cdn.eporner.com) allows direct image access
+ * - Next.js is configured with unoptimized: true + domain whitelist
+ * - These URLs are stable permanent links
+ * 
+ * If Cloudinary is configured and working, it will be used as a CDN layer.
+ * Otherwise falls back to direct CDN URL.
+ */
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'jaat',
-  api_key: process.env.CLOUDINARY_API_KEY || '695293672966725',
-  api_secret: process.env.CLOUDINARY_API_SECRET || '6TS_CG9zA3367W_Lk6I_6REwK5U',
-  secure: true,
-})
+let cloudinaryConfigured = false
+
+async function tryConfigureCloudinary() {
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    return false
+  }
+  try {
+    const { v2: cloudinary } = await import('cloudinary')
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+      secure: true,
+    })
+    cloudinaryConfigured = true
+    return true
+  } catch {
+    return false
+  }
+}
 
 /**
- * Upload an image from a remote URL to Cloudinary.
- * Returns the hosted Cloudinary URL on success, or the original URL as fallback.
+ * Returns the best available CDN URL for a thumbnail.
+ * Tries Cloudinary first if configured, falls back to the direct URL.
  */
 export async function uploadThumbnailToCloudinary(imageUrl: string): Promise<string> {
-  // Already a Cloudinary URL — return as-is
+  // Empty or non-http URL — return as-is
+  if (!imageUrl || !imageUrl.startsWith('http')) return imageUrl
+  // Already on Cloudinary — keep it
   if (imageUrl.includes('cloudinary.com')) return imageUrl
-  // Not an http URL — return as-is
-  if (!imageUrl.startsWith('http')) return imageUrl
 
-  try {
-    const result = await cloudinary.uploader.upload(imageUrl, {
-      folder: 'desisexy/thumbnails',
-      resource_type: 'image',
-      fetch_format: 'auto',
-      quality: 'auto',
-      // Use URL hash as public_id to avoid re-uploading duplicates
-      public_id: `thumb_${Buffer.from(imageUrl).toString('base64').substring(0, 40).replace(/[^a-zA-Z0-9]/g, '_')}`,
-      overwrite: false,
-    })
-    console.log(`Cloudinary upload success: ${result.secure_url}`)
-    return result.secure_url
-  } catch (err: any) {
-    // If already exists (duplicate), extract the URL from error
-    if (err?.error?.http_code === 400 && err?.error?.message?.includes('already exists')) {
-      console.log('Cloudinary: image already uploaded, reusing existing URL')
+  // Try Cloudinary upload if credentials available
+  if (process.env.CLOUDINARY_CLOUD_NAME) {
+    await tryConfigureCloudinary()
+    if (cloudinaryConfigured) {
+      try {
+        const { v2: cloudinary } = await import('cloudinary')
+        const publicId = `thumb_${Buffer.from(imageUrl).toString('base64').substring(0, 40).replace(/[^a-zA-Z0-9]/g, '_')}`
+        const result = await cloudinary.uploader.upload(imageUrl, {
+          folder: 'desisexy/thumbnails',
+          resource_type: 'image',
+          fetch_format: 'auto',
+          quality: 'auto',
+          public_id: publicId,
+          overwrite: false,
+        })
+        console.log(`Cloudinary upload success: ${result.secure_url}`)
+        return result.secure_url
+      } catch (err: any) {
+        console.warn(`Cloudinary upload failed: ${err?.message}. Using direct CDN URL.`)
+      }
     }
-    console.warn(`Cloudinary upload failed for ${imageUrl}: ${err?.message || err}. Using original URL.`)
-    return imageUrl
   }
+
+  // Fallback: direct CDN URL (EPorner static CDN is publicly accessible)
+  console.log(`Using direct CDN URL: ${imageUrl}`)
+  return imageUrl
 }

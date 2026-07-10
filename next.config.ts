@@ -8,7 +8,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**.eporner.com" },
-      { protocol: "https", hostname: "**.static-hw.eporner.com" },
+      { protocol: "https", hostname: "**.eporner.com" },
+      { protocol: "https", hostname: "static-eu-cdn.eporner.com" },
+      { protocol: "https", hostname: "static-hw.eporner.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
     unoptimized: true, // Use CDN URLs as-is, no server-side processing
