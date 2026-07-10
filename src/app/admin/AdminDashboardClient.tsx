@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   Shield, Film, Grid, Sparkles, Settings, Eye, 
   Trash2, Plus, Edit, Link as LinkIcon, AlertTriangle, 
@@ -563,9 +564,17 @@ export default function AdminDashboardClient() {
     }
   }, [categories])
 
+  const router = useRouter()
+
   const showFeedback = (text: string, type: 'success' | 'error' = 'success') => {
     setActionMessage({ text, type })
     setTimeout(() => setActionMessage({ text: '', type: 'success' }), 3000)
+  }
+
+  const handleLogout = async () => {
+    await fetch('/api/admin/auth', { method: 'DELETE' })
+    router.push('/admin/login')
+    router.refresh()
   }
 
   // --- METADATA DETECTOR ---
@@ -1097,6 +1106,17 @@ export default function AdminDashboardClient() {
         >
           <Settings className="w-4 h-4 mr-2.5" /> Settings
         </button>
+
+        {/* Logout button */}
+        <div className="mt-4 pt-4 border-t border-white/5">
+          <button
+            id="admin-logout-btn"
+            onClick={handleLogout}
+            className="w-full flex items-center px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition text-left cursor-pointer text-red-400 hover:text-white hover:bg-red-500/10"
+          >
+            <Shield className="w-4 h-4 mr-2.5" /> Logout
+          </button>
+        </div>
       </aside>
 
       {/* Main Workspace */}
