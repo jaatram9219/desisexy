@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { dbService } from '@/lib/dbService'
+import { uploadThumbnailToCloudinary } from '@/lib/cloudinaryUpload'
 
 export async function GET(request: Request) {
   try {
@@ -55,8 +56,9 @@ export async function POST(request: Request) {
     }
     finalCategoryId = categoryRecord.id
 
-    // Store thumbnail as CDN URL directly — no local download needed.
-    // The browser fetches thumbnails straight from EPorner CDN, zero server load.
+    // Upload thumbnail to Cloudinary — reliable, globally fast, no hotlinking issues
+    const cloudinaryThumbnail = await uploadThumbnailToCloudinary(thumbnail)
+
     const createdVideo = await dbService.createVideo({
       title,
       slug,
@@ -65,7 +67,7 @@ export async function POST(request: Request) {
       duration: parseInt(duration),
       format,
       source,
-      thumbnail, // Direct CDN URL — lightweight!
+      thumbnail: cloudinaryThumbnail,
       categoryId: finalCategoryId,
       tags: typeof tags === 'string' ? tags.split(',').map((t: string) => t.trim()).filter(Boolean) : (tags || []),
       isFeatured: body.isFeatured === true,
