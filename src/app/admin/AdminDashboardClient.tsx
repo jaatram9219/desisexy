@@ -1024,10 +1024,6 @@ export default function AdminDashboardClient() {
             Admin CMS control settings are restricted to OWNER, ADMIN and MODERATOR profiles.
           </p>
         </div>
-        <div className="p-4 bg-black/40 rounded-xl border border-white/5 text-left text-[11px] text-gray-500 font-mono leading-relaxed">
-          <p className="font-extrabold text-brand-primary uppercase mb-1">Sandbox Switcher:</p>
-          To explore this area, open the user profile dropdown in the top right header menu and swap your role to ADMIN or OWNER.
-        </div>
       </div>
     )
   }

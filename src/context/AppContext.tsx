@@ -34,9 +34,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [isTheaterMode, setIsTheaterMode] = useState(false)
 
-  // Hydrate states from localStorage
+  // Hydrate states from localStorage and verify cookie session
   useEffect(() => {
-    // No auto-login — visitors are anonymous by default
+    // Check if user is logged in via API
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.user) {
+          setCurrentUser(data.user)
+        } else {
+          setCurrentUser(null)
+        }
+      })
+      .catch(() => setCurrentUser(null))
 
     const storedFavs = localStorage.getItem('apex_favorites')
     if (storedFavs) {

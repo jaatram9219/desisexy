@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function AdminLoginPage() {
+function AdminLoginPageContent() {
   const [key, setKey] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -274,5 +274,17 @@ export default function AdminLoginPage() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center text-xs text-gray-500 font-semibold uppercase tracking-widest">
+        Loading Access Portal...
+      </div>
+    }>
+      <AdminLoginPageContent />
+    </Suspense>
   )
 }

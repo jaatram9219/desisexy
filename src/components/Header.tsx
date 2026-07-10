@@ -5,20 +5,26 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { 
   Search, Flame, Compass, 
-  Clock, Award, Sparkles, Menu, X, Play
+  Clock, Award, Sparkles, Menu, X, Play,
+  ChevronDown, LogOut, Heart, History, Shield
 } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { motion, AnimatePresence } from 'framer-motion'
+import AuthModal from './AuthModal'
 
 export default function Header() {
   const router = useRouter()
-  const { searchQuery, setSearchQuery } = useApp()
+  const { searchQuery, setSearchQuery, currentUser, setCurrentUser, favorites, watchHistory } = useApp()
 
   const [inputFocused, setInputFocused] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authInitialMode, setAuthInitialMode] = useState<'login' | 'register'>('login')
   const [headerAd, setHeaderAd] = useState<{ id: string; name: string; code: string } | null>(null)
 
   const searchRef = useRef<HTMLDivElement>(null)
+  const profileRef = useRef<HTMLDivElement>(null)
 
   const trendingSearches = ['Indian', 'Bhabhi', 'Homemade', 'Hindi Audio', 'College']
 
@@ -27,6 +33,9 @@ export default function Header() {
     function handleClickOutside(event: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setInputFocused(false)
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -62,6 +71,24 @@ export default function Header() {
     setSearchQuery(term)
     setInputFocused(false)
     router.push(`/search?q=${encodeURIComponent(term)}`)
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      setCurrentUser(null)
+      setProfileDropdownOpen(false)
+      router.push('/')
+      router.refresh()
+    } catch (err) {
+      console.error('Logout error:', err)
+    }
+  }
+
+  const openAuth = (mode: 'login' | 'register') => {
+    setAuthInitialMode(mode)
+    setAuthModalOpen(true)
+    setMobileNavOpen(false)
   }
 
   return (
@@ -148,11 +175,102 @@ export default function Header() {
           </AnimatePresence>
         </div>
 
-        {/* Right: Mobile menu button only */}
-        <div className="flex items-center space-x-2">
+        {/* Right: User actions & mobile menu button */}
+        <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* User profile dropdown if logged in, otherwise sign in button */}
+          {currentUser ? (
+            <div ref={profileRef} className="relative">
+              <button
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="flex items-center space-x-1.5 p-1.5 pr-2.5 sm:pr-3 bg-brand-card hover:bg-neutral-800 rounded-full border border-white/5 hover:border-brand-primary/30 transition-all cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary to-brand-accent flex items-center justify-center text-black font-extrabold text-sm uppercase">
+                  {currentUser.name.charAt(0)}
+                </div>
+                <div className="hidden sm:block text-left shrink-0">
+                  <p className="text-xs font-bold text-white line-clamp-1 leading-3">{currentUser.name}</p>
+                  <span className="text-[9px] uppercase tracking-wider text-gray-500 font-black">{currentUser.role}</span>
+                </div>
+                <ChevronDown className="w-4 h-4 text-gray-500 hidden sm:block" />
+              </button>
+
+              <AnimatePresence>
+                {profileDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                    className="absolute right-0 mt-3 w-60 bg-[#161616] border border-white/10 rounded-2xl p-2 shadow-2xl z-50"
+                  >
+                    <div className="p-3 border-b border-white/5">
+                      <p className="text-sm font-bold text-white">{currentUser.name}</p>
+                      <p className="text-xs text-gray-400 truncate">{currentUser.email}</p>
+                    </div>
+
+                    <div className="py-1">
+                      {/* Only owners, admins and moderators can see Admin Panel link */}
+                      {(currentUser.role === 'ADMIN' || currentUser.role === 'OWNER' || currentUser.role === 'MODERATOR') && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center px-3 py-2 text-sm font-semibold rounded-lg text-gray-300 hover:text-white hover:bg-white/5 transition"
+                        >
+                          <Shield className="w-4 h-4 mr-2.5 text-brand-primary" /> Admin Panel
+                        </Link>
+                      )}
+
+                      <Link
+                        href="/favorites"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center px-3 py-2 text-sm font-semibold rounded-lg text-gray-300 hover:text-white hover:bg-white/5 transition"
+                      >
+                        <Heart className="w-4 h-4 mr-2.5 text-red-500" /> Favorites
+                        <span className="ml-auto text-xs px-2 py-0.5 bg-neutral-800 rounded-full font-bold">{favorites.length}</span>
+                      </Link>
+
+                      <Link
+                        href="/history"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center px-3 py-2 text-sm font-semibold rounded-lg text-gray-300 hover:text-white hover:bg-white/5 transition"
+                      >
+                        <History className="w-4 h-4 mr-2.5 text-blue-500" /> History
+                        <span className="ml-auto text-xs px-2 py-0.5 bg-neutral-800 rounded-full font-bold">{watchHistory.length}</span>
+                      </Link>
+                    </div>
+
+                    <div className="border-t border-white/5 pt-1 mt-1">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center px-3 py-2 text-sm font-semibold rounded-lg text-brand-accent hover:bg-brand-accent/10 transition text-left cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4 mr-2.5" /> Log Out
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div className="hidden sm:flex items-center space-x-2">
+              <button
+                onClick={() => openAuth('login')}
+                className="px-3.5 py-1.5 hover:text-brand-accent text-white font-bold text-xs uppercase tracking-wider rounded-lg transition text-left cursor-pointer"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => openAuth('register')}
+                className="px-4 py-1.5 bg-brand-accent hover:bg-red-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-lg transition cursor-pointer"
+              >
+                Join Free
+              </button>
+            </div>
+          )}
+
+          {/* Mobile menu button */}
           <button 
             onClick={() => setMobileNavOpen(!mobileNavOpen)}
-            className="md:hidden p-2 rounded-lg bg-brand-card hover:bg-neutral-800 text-gray-400 hover:text-white"
+            className="md:hidden p-2 rounded-lg bg-brand-card hover:bg-neutral-800 text-gray-400 hover:text-white cursor-pointer"
           >
             {mobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -253,10 +371,54 @@ export default function Header() {
               <Link href="/popular" onClick={() => setMobileNavOpen(false)} className="flex items-center py-1.5 text-sm font-bold text-gray-300 hover:text-brand-primary transition">
                 <Sparkles className="w-4 h-4 mr-2 text-brand-primary" /> Popular
               </Link>
+
+              {/* Mobile Auth Links */}
+              {!currentUser ? (
+                <div className="flex flex-col space-y-2 pt-4 border-t border-white/5">
+                  <button
+                    onClick={() => openAuth('login')}
+                    className="w-full h-10 bg-white/5 hover:bg-neutral-850 rounded-lg text-sm text-white font-bold uppercase tracking-wider border border-white/5 transition"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => openAuth('register')}
+                    className="w-full h-10 bg-brand-accent hover:bg-red-700 rounded-lg text-sm text-white font-extrabold uppercase tracking-wider transition"
+                  >
+                    Join Free
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-2 pt-4 border-t border-white/5">
+                  <p className="text-xs text-gray-400 px-1">Logged in as: <span className="font-bold text-white">{currentUser.name}</span></p>
+                  {(currentUser.role === 'ADMIN' || currentUser.role === 'OWNER' || currentUser.role === 'MODERATOR') && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileNavOpen(false)}
+                      className="flex items-center py-1.5 text-sm font-bold text-gray-300 hover:text-brand-primary transition"
+                    >
+                      <Shield className="w-4 h-4 mr-2 text-brand-primary" /> Admin Panel
+                    </Link>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full h-10 bg-brand-accent/10 text-brand-accent rounded-lg text-xs font-bold uppercase tracking-wider transition text-left px-3 mt-2"
+                  >
+                    Log Out
+                  </button>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={authModalOpen} 
+        onClose={() => setAuthModalOpen(false)} 
+        initialMode={authInitialMode}
+      />
     </header>
   )
 }

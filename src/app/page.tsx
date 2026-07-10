@@ -50,7 +50,7 @@ export default async function HomePage() {
           {allVideos.length === 0 ? (
             <div className="w-full text-center py-20 bg-brand-card rounded-3xl border border-white/5 p-8">
               <p className="text-gray-400 font-bold mb-4">No videos found on the platform.</p>
-              <p className="text-xs text-gray-600">Access the User Profile menu in the header, swap role to ADMIN, and use the Admin Panel to import videos.</p>
+              <p className="text-xs text-gray-600">Use the admin panel to import videos.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
