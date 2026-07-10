@@ -1,0 +1,118 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  name         String
+  role         String        @default("USER") // OWNER, ADMIN, MODERATOR, USER
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  favorites    Favorite[]
+  history      WatchHistory[]
+  playlists    Playlist[]
+}
+
+model Category {
+  id             String   @id @default(uuid())
+  name           String
+  slug           String   @unique
+  description    String?
+  thumbnail      String?
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  videos         Video[]
+}
+
+model Video {
+  id             String         @id @default(uuid())
+  title          String
+  slug           String         @unique
+  description    String?
+  url            String
+  duration       Int
+  format         String
+  source         String
+  thumbnail      String
+  views          Int            @default(0)
+  isFeatured     Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  tags           String         // Store tags as comma separated string or relation, SQLite does not support scalar lists
+  categoryId     String
+  category       Category       @relation(fields: [categoryId], references: [id])
+  seoTitle       String?
+  seoDescription String?
+  ogImage        String?
+  schemaMarkup   String?        // SQLite does not support Json fields natively in some older prisma, but String is safer
+  favorites      Favorite[]
+  history        WatchHistory[]
+  playlistItems  PlaylistItem[]
+}
+
+model Playlist {
+  id          String         @id @default(uuid())
+  name        String
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  items       PlaylistItem[]
+}
+
+model PlaylistItem {
+  id         String   @id @default(uuid())
+  playlistId String
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  videoId    String
+  video      Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, videoId])
+}
+
+model WatchHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  watchedAt DateTime @default(now())
+}
+
+model AdCampaign {
+  id            String      @id @default(uuid())
+  name          String
+  placement     String      // HEADER, FOOTER, CONTENT, PAUSE
+  code          String
+  isHtml        Boolean     @default(true)
+  imageUrl      String?
+  targetUrl     String?
+  active        Boolean     @default(true)
+  impressions   Int         @default(0)
+  clicks        Int         @default(0)
+  videoInterval Int?
+  createdAt     DateTime    @default(now())
+}
+
+model Setting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+}
