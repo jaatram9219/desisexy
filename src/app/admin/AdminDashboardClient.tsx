@@ -62,6 +62,16 @@ export default function AdminDashboardClient() {
   // Settings metrics
   const [visitors, setVisitors] = useState('45000')
   const [revenue, setRevenue] = useState('1240.50')
+
+  // Custom Ad Injections & Announcement states
+  const [headAdCode, setHeadAdCode] = useState('')
+  const [bodyAdCode, setBodyAdCode] = useState('')
+  const [footAdCode, setFootAdCode] = useState('')
+  const [popupActive, setPopupActive] = useState('false')
+  const [popupTitle, setPopupTitle] = useState('')
+  const [popupMessage, setPopupMessage] = useState('')
+  const [popupBtnText, setPopupBtnText] = useState('')
+  const [popupBtnLink, setPopupBtnLink] = useState('')
   
   const [loading, setLoading] = useState(true)
   const [actionMessage, setActionMessage] = useState({ text: '', type: 'success' })
@@ -451,16 +461,19 @@ export default function AdminDashboardClient() {
       setAds(adList || [])
 
       // Load Settings values
-      const visitorsRes = await fetch('/api/settings?key=daily_visitors')
-      if (visitorsRes.ok) {
-        const val = await visitorsRes.text()
-        if (val) setVisitors(val)
-      }
-
-      const revRes = await fetch('/api/settings?key=revenue_estimate')
-      if (revRes.ok) {
-        const val = await revRes.text()
-        if (val) setRevenue(val)
+      const settingsRes = await fetch('/api/settings')
+      if (settingsRes.ok) {
+        const settings = await settingsRes.json()
+        if (settings.daily_visitors) setVisitors(settings.daily_visitors)
+        if (settings.revenue_estimate) setRevenue(settings.revenue_estimate)
+        if (settings.ad_injection_head) setHeadAdCode(settings.ad_injection_head)
+        if (settings.ad_injection_body) setBodyAdCode(settings.ad_injection_body)
+        if (settings.ad_injection_foot) setFootAdCode(settings.ad_injection_foot)
+        if (settings.popup_active) setPopupActive(settings.popup_active)
+        if (settings.popup_title) setPopupTitle(settings.popup_title)
+        if (settings.popup_message) setPopupMessage(settings.popup_message)
+        if (settings.popup_btn_text) setPopupBtnText(settings.popup_btn_text)
+        if (settings.popup_btn_link) setPopupBtnLink(settings.popup_btn_link)
       }
     } catch (err) {
       console.error('Failed to load dashboard data:', err)
@@ -1000,11 +1013,26 @@ export default function AdminDashboardClient() {
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await Promise.all([
-        fetch(`/api/settings?key=daily_visitors&value=${visitors}`, { method: 'POST' }),
-        fetch(`/api/settings?key=revenue_estimate&value=${revenue}`, { method: 'POST' })
-      ])
-      showFeedback('Site stats saved!')
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          settings: {
+            daily_visitors: visitors,
+            revenue_estimate: revenue,
+            ad_injection_head: headAdCode,
+            ad_injection_body: bodyAdCode,
+            ad_injection_foot: footAdCode,
+            popup_active: popupActive,
+            popup_title: popupTitle,
+            popup_message: popupMessage,
+            popup_btn_text: popupBtnText,
+            popup_btn_link: popupBtnLink
+          }
+        })
+      })
+      if (!res.ok) throw new Error('Failed to save settings')
+      showFeedback('Platform configurations saved successfully!')
       loadData()
     } catch (err: any) {
       showFeedback(err.message, 'error')
@@ -1982,7 +2010,108 @@ export default function AdminDashboardClient() {
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-2">
+                <div className="border-t border-white/5 pt-6 space-y-4">
+                  <h3 className="text-sm font-black uppercase tracking-wider text-brand-primary">Custom Script & Ads Injection</h3>
+                  <p className="text-[10px] text-gray-400 font-semibold leading-relaxed">Paste HTML/Javascript code snippets directly from your ad networks (like Adsterra, ExoClick, Google Analytics). They will be dynamically injected on every visitor page view.</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Head Code (Inside &lt;head&gt;)</label>
+                      <textarea 
+                        rows={6}
+                        value={headAdCode} 
+                        onChange={(e) => setHeadAdCode(e.target.value)}
+                        placeholder="<!-- Scripts, Metas, analytics here -->"
+                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Body Code (Top of &lt;body&gt;)</label>
+                      <textarea 
+                        rows={6}
+                        value={bodyAdCode} 
+                        onChange={(e) => setBodyAdCode(e.target.value)}
+                        placeholder="<!-- Header ad codes, floating bars here -->"
+                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Foot Code (Bottom of &lt;body&gt;)</label>
+                      <textarea 
+                        rows={6}
+                        value={footAdCode} 
+                        onChange={(e) => setFootAdCode(e.target.value)}
+                        placeholder="<!-- Footer widgets, popup triggers here -->"
+                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-white/5 pt-6 space-y-4">
+                  <h3 className="text-sm font-black uppercase tracking-wider text-brand-primary">Visitor Announcement Popup</h3>
+                  <p className="text-[10px] text-gray-400 font-semibold leading-relaxed">Display a custom popup notification modal to visitors when they land on your site. Excellent for promoting Telegram channels, updates, or ad links.</p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Popup Active Status</label>
+                      <select
+                        value={popupActive}
+                        onChange={(e) => setPopupActive(e.target.value)}
+                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary"
+                      >
+                        <option value="false">Disabled</option>
+                        <option value="true">Active (Show to visitors)</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Popup Title</label>
+                      <input 
+                        type="text" 
+                        value={popupTitle} 
+                        onChange={(e) => setPopupTitle(e.target.value)}
+                        placeholder="Join our Telegram group!"
+                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Popup Message Body</label>
+                    <textarea 
+                      rows={3}
+                      value={popupMessage} 
+                      onChange={(e) => setPopupMessage(e.target.value)}
+                      placeholder="Get daily updates, hot Indian videos, and exclusive leaks directly in your chat."
+                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Button CTA Text</label>
+                      <input 
+                        type="text" 
+                        value={popupBtnText} 
+                        onChange={(e) => setPopupBtnText(e.target.value)}
+                        placeholder="Join Telegram Channel"
+                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Button Redirect Link URL</label>
+                      <input 
+                        type="url" 
+                        value={popupBtnLink} 
+                        onChange={(e) => setPopupBtnLink(e.target.value)}
+                        placeholder="https://t.me/desisexy"
+                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-4 border-t border-white/5">
                   <button 
                     type="submit" 
                     className="px-6 py-3 bg-brand-primary hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl hover:scale-105 active:scale-95 transition cursor-pointer"
