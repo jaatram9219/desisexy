@@ -7,19 +7,27 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm ci --omit=dev --ignore-scripts
 
-# Build the source code
+# Install all deps (including devDeps) for building
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+
+RUN apk add --no-cache libc6-compat
+
+COPY package.json package-lock.json* ./
+RUN npm ci --ignore-scripts
+
 COPY . .
 
-# Generate Prisma client
+# Generate Prisma client (needs a dummy URL at build time — real URL set via env at runtime)
+ENV DATABASE_URL="file:./dev.db"
+ENV TURSO_DATABASE_URL="file:./dev.db"
 RUN npx prisma generate
 
-# Build Next.js
+# Build Next.js (disable telemetry)
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 RUN npm run build
 
 # Production image — lean and fast
@@ -28,22 +36,21 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy only what's needed to run
+# Copy public assets
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/prisma ./prisma
 
-# Automatically leverage output traces to reduce image size
+# Copy standalone Next.js output
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3000
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
