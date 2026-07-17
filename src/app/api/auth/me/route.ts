@@ -6,6 +6,22 @@ import { verifyJWT } from '@/lib/auth'
 export async function GET() {
   try {
     const cookieStore = await cookies()
+    
+    // Check if logged in as Admin first via secure admin_session
+    const adminSessionToken = cookieStore.get('admin_session')?.value
+    const adminKey = process.env.ADMIN_SECRET_KEY || 'edb1e1d2340985f9b5c86dfafa10d5c3cbfb1fede40ee17097e4c35111aae50f'
+    
+    if (adminSessionToken && adminSessionToken === adminKey) {
+      return NextResponse.json({
+        user: {
+          id: 'admin-system',
+          email: 'admin@desisexy.in',
+          name: 'System Administrator',
+          role: 'ADMIN'
+        }
+      })
+    }
+
     const sessionToken = cookieStore.get('user_session')?.value
 
     if (!sessionToken) {
