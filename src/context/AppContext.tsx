@@ -36,8 +36,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Hydrate states from localStorage and verify cookie session
   useEffect(() => {
-    // Check if user is logged in via API
-    fetch('/api/auth/me')
+    // Check if user is logged in via API (with cache breaker)
+    fetch(`/api/auth/me?t=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.user) {

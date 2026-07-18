@@ -12,7 +12,7 @@ export async function GET() {
     const adminKey = process.env.ADMIN_SECRET_KEY || 'edb1e1d2340985f9b5c86dfafa10d5c3cbfb1fede40ee17097e4c35111aae50f'
     
     if (adminSessionToken && adminSessionToken === adminKey) {
-      return NextResponse.json({
+      const response = NextResponse.json({
         user: {
           id: 'admin-system',
           email: 'admin@desisexy.in',
@@ -20,17 +20,23 @@ export async function GET() {
           role: 'ADMIN'
         }
       })
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+      return response
     }
 
     const sessionToken = cookieStore.get('user_session')?.value
 
     if (!sessionToken) {
-      return NextResponse.json({ user: null })
+      const response = NextResponse.json({ user: null })
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+      return response
     }
 
     const payload = await verifyJWT(sessionToken)
     if (!payload || !payload.userId) {
-      return NextResponse.json({ user: null })
+      const response = NextResponse.json({ user: null })
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+      return response
     }
 
     const user = await prisma.user.findUnique({
@@ -44,12 +50,18 @@ export async function GET() {
     })
 
     if (!user) {
-      return NextResponse.json({ user: null })
+      const response = NextResponse.json({ user: null })
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+      return response
     }
 
-    return NextResponse.json({ user })
+    const response = NextResponse.json({ user })
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+    return response
   } catch (error) {
     console.error('Auth check error:', error)
-    return NextResponse.json({ user: null })
+    const response = NextResponse.json({ user: null })
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+    return response
   }
 }
