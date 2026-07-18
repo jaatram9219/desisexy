@@ -8,6 +8,7 @@ import AdsterraBanner from '@/components/AdsterraBanner'
 import Link from 'next/link'
 import { Video } from '@/lib/dbService'
 import AuthModal from '@/components/AuthModal'
+import { getThumbnailUrl } from '@/lib/imageProxy'
 
 interface WatchPageClientProps {
   video: Video
@@ -450,7 +451,7 @@ export default function WatchPageClient({ video, relatedVideos, categoryName }: 
                   {/* Compact Thumbnail */}
                   <Link href={`/video/${rel.slug}`} className="relative w-32 aspect-video shrink-0 bg-black/40 overflow-hidden">
                     <img 
-                      src={rel.thumbnail} 
+                      src={getThumbnailUrl(rel.thumbnail)} 
                       alt={rel.title} 
                       className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
                     />

@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { Play, Eye, Calendar, Sparkles, ThumbsUp } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { getThumbnailUrl, getPreviewUrl } from '@/lib/imageProxy'
 
 export interface VideoCardProps {
   video: {
@@ -106,7 +107,7 @@ export default function VideoCard({ video }: VideoCardProps) {
         {/* Hover preview video clip */}
         {isHovered && epornerId ? (
           <video
-            src={`https://preview.eporner.com/${epornerId}.mp4`}
+            src={getPreviewUrl(epornerId)}
             autoPlay
             loop
             muted
@@ -121,7 +122,7 @@ export default function VideoCard({ video }: VideoCardProps) {
 
         {/* Thumbnail Image */}
         <img
-          src={thumbnail || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60'}
+          src={getThumbnailUrl(thumbnail)}
           alt={title}
           className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500 ease-out"
           loading="lazy"

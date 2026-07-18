@@ -6,6 +6,7 @@ import { Play, Flame, ChevronLeft, ChevronRight, Award, Info } from 'lucide-reac
 import { motion } from 'framer-motion'
 import VideoCard from './VideoCard'
 import { Video, Category } from '@/lib/dbService'
+import { getThumbnailUrl } from '@/lib/imageProxy'
 
 interface HeroSectionProps {
   featuredVideo: Video | null
@@ -33,7 +34,7 @@ export default function HeroSection({ featuredVideo, trendingVideos, categories 
       {featuredVideo && (
         <div className="relative w-full rounded-3xl overflow-hidden aspect-[21/9] min-h-[300px] border border-white/5 shadow-2xl group">
           {/* Background Poster Overlay */}
-          <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${featuredVideo.thumbnail})` }} />
+          <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${getThumbnailUrl(featuredVideo.thumbnail)})` }} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0B] via-[#0B0B0B]/60 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0B] via-[#0B0B0B]/30 to-transparent" />
 
@@ -87,7 +88,7 @@ export default function HeroSection({ featuredVideo, trendingVideos, categories 
                 className="px-4 py-2.5 rounded-2xl bg-brand-card hover:bg-neutral-900 border border-white/5 hover:border-brand-accent/30 flex items-center space-x-2 text-xs font-bold text-gray-300 hover:text-white transition shadow-sm"
               >
                 {cat.thumbnail && (
-                  <img src={cat.thumbnail} alt={cat.name} className="w-5 h-5 rounded-full object-cover border border-white/10" />
+                  <img src={getThumbnailUrl(cat.thumbnail)} alt={cat.name} className="w-5 h-5 rounded-full object-cover border border-white/10" />
                 )}
                 <span>{cat.name}</span>
               </Link>

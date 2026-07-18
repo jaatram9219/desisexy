@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import Hls from 'hls.js'
 import { motion, AnimatePresence } from 'framer-motion'
+import { getEmbedUrl, getThumbnailUrl } from '@/lib/imageProxy'
 
 interface CustomPlayerProps {
   url: string
@@ -263,7 +264,7 @@ export default function CustomPlayer({
         />
 
         <iframe
-          src={url}
+          src={getEmbedUrl(url)}
           title="Embedded Video Player"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
@@ -286,7 +287,7 @@ export default function CustomPlayer({
         onClick={togglePlay}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
-        poster={thumbnail}
+        poster={getThumbnailUrl(thumbnail)}
         className="w-full h-full object-contain cursor-pointer"
       />
 
