@@ -63,6 +63,7 @@ export default async function RootLayout({
                   const placeholder = document.createElement('div');
                   placeholder.innerHTML = html;
                   Array.from(placeholder.childNodes).forEach(node => {
+                    if (node.nodeType !== 1) return; // Skip text nodes to prevent them from showing at the top of the page
                     if (node.tagName === 'SCRIPT') {
                       const s = document.createElement('script');
                       if (node.src) s.src = node.src;
