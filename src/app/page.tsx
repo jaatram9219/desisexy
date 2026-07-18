@@ -27,6 +27,27 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-bg text-white">
+      {/* Google Sitelinks Searchbox Schema Markup */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "DesiSexy.in",
+            "url": "https://desisexy.in",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://desisexy.in/search?q={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          })
+        }}
+      />
+
       {/* Header component */}
       <Header />
 

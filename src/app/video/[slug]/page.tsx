@@ -59,20 +59,28 @@ export default async function VideoWatchPage({ params }: VideoPageProps) {
   const categories = await dbService.getCategories()
   const currentCategory = categories.find(c => c.id === video.categoryId) || null
 
-  // Generate structured schema markup (JSON-LD)
+  // Generate structured schema markup (JSON-LD) following Google's exact specifications
+  const hours = Math.floor(video.duration / 3600)
+  const minutes = Math.floor((video.duration % 3600) / 60)
+  const seconds = video.duration % 60
+  let durationStr = 'PT'
+  if (hours > 0) durationStr += `${hours}H`
+  if (minutes > 0 || hours > 0) durationStr += `${minutes}M`
+  durationStr += `${seconds}S`
+
   const defaultSchema = {
     "@context": "https://schema.org",
     "@type": "VideoObject",
     "name": video.title,
     "description": video.description || 'Watch premium video content.',
-    "thumbnailUrl": video.thumbnail,
-    "uploadDate": video.createdAt,
-    "duration": `PT${Math.floor(video.duration / 60)}M${video.duration % 60}S`,
+    "thumbnailUrl": [video.thumbnail],
+    "uploadDate": new Date(video.createdAt).toISOString(),
+    "duration": durationStr,
     "embedUrl": video.format === 'embed' ? video.url : undefined,
     "contentUrl": video.format !== 'embed' ? video.url : undefined,
     "interactionStatistic": {
       "@type": "InteractionCounter",
-      "interactionType": { "@type": "WatchAction" },
+      "interactionType": { "@type": "https://schema.org/WatchAction" },
       "userInteractionCount": video.views
     }
   }
