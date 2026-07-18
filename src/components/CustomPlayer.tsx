@@ -233,12 +233,32 @@ export default function CustomPlayer({
   if (format === 'embed') {
     return (
       <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/5 shadow-2xl bg-black">
+        {/* Custom top bar: Crops out original iframe title bar and blocks click events */}
+        <div 
+          className="absolute top-0 left-0 right-0 h-[48px] bg-[#0c0c0c] z-30 flex items-center px-4 select-none pointer-events-auto border-b border-white/5"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+        >
+          <span className="text-[10px] font-black tracking-widest text-brand-primary uppercase">DESISEXY PLAYER</span>
+        </div>
+
+        {/* Bottom Logo Masking Overlay (hides Eporner hosted logo next to fullscreen icon) */}
+        <div 
+          className="absolute bottom-0 right-[45px] w-[120px] h-[36px] bg-[#0c0c0c] z-30 select-none pointer-events-auto"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+        />
+
         <iframe
           src={url}
           title="Embedded Video Player"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
-          className="w-full h-full border-none"
+          className="w-full h-[calc(100%+48px)] -mt-[48px] border-none relative z-10"
         />
       </div>
     )
