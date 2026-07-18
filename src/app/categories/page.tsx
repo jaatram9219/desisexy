@@ -4,6 +4,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import { Award, Film } from 'lucide-react'
+import { getThumbnailUrl } from '@/lib/imageProxy'
 
 export const revalidate = 0
 
@@ -42,7 +43,7 @@ export default async function CategoriesPage() {
                 {/* Background Image */}
                 <div 
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" 
-                  style={{ backgroundImage: `url(${cat.thumbnail || 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=60'})` }}
+                  style={{ backgroundImage: `url(${getThumbnailUrl(cat.thumbnail) || 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=60'})` }}
                 />
                 
                 {/* Overlay gradient */}

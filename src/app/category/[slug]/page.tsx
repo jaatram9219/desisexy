@@ -5,6 +5,7 @@ import Footer from '@/components/Footer'
 import VideoCard from '@/components/VideoCard'
 import { notFound } from 'next/navigation'
 import { Grid, Film } from 'lucide-react'
+import { getThumbnailUrl } from '@/lib/imageProxy'
 
 export const revalidate = 0
 
@@ -44,7 +45,7 @@ export default async function CategoryDetailPage({ params }: CategoryPageProps) 
           {/* Background image */}
           <div 
             className="absolute inset-0 bg-cover bg-center" 
-            style={{ backgroundImage: `url(${category.thumbnail || 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1000&auto=format&fit=crop&q=60'})` }}
+            style={{ backgroundImage: `url(${getThumbnailUrl(category.thumbnail) || 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1000&auto=format&fit=crop&q=60'})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
           <div className="absolute inset-0 bg-black/25" />

@@ -8,9 +8,9 @@ export function getThumbnailUrl(url: string | null | undefined): string {
     return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60'
   }
   
-  // If the thumbnail is hosted on blocked Eporner CDN, route it through weserv image proxy
+  // If the thumbnail is hosted on blocked Eporner CDN, route it through our local server proxy endpoint
   if (url.includes('eporner.com') || url.includes('eporner-img.com')) {
-    return `https://images.weserv.nl/?url=${encodeURIComponent(url)}`
+    return `/api/proxy-image?url=${encodeURIComponent(url)}`
   }
   
   return url
