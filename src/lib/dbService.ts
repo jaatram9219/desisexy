@@ -362,5 +362,38 @@ export const dbService = {
     await prisma.watchHistory.create({
       data: { userId, videoId }
     })
+  },
+
+  async logVisit(ip: string): Promise<void> {
+    try {
+      const crypto = require('crypto')
+      const date = new Date().toISOString().split('T')[0]
+      const ipHash = crypto.createHash('sha256').update(ip).digest('hex')
+
+      await prisma.visitorLog.upsert({
+        where: {
+          date_ipHash: { date, ipHash }
+        },
+        create: { date, ipHash },
+        update: {}
+      })
+    } catch (err) {
+      // Ignore concurrency conflicts
+    }
+  },
+
+  async getVisitorStats(): Promise<{ todayUnique: number; totalUnique: number }> {
+    try {
+      const date = new Date().toISOString().split('T')[0]
+      const todayUnique = await prisma.visitorLog.count({
+        where: { date }
+      })
+      // Total unique combinations of date + ipHash (representing sum of daily unique visits)
+      const totalUnique = await prisma.visitorLog.count()
+      return { todayUnique, totalUnique }
+    } catch (err) {
+      console.error('Error getting visitor stats:', err)
+      return { todayUnique: 0, totalUnique: 0 }
+    }
   }
 }

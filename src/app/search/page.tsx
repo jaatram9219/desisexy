@@ -4,7 +4,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import VideoCard from '@/components/VideoCard'
 import Link from 'next/link'
-import { Search, Flame, Tag, Grid } from 'lucide-react'
+import { Search, Tag } from 'lucide-react'
+import SearchFilters from '@/components/SearchFilters'
 
 export const revalidate = 0
 
@@ -57,46 +58,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
 
           {/* Filtering controls (SSR friendly using URL search params) */}
-          <div className="flex flex-wrap gap-2.5 items-center">
-            {/* Category Filter */}
-            <div className="flex items-center space-x-1.5 bg-brand-card px-3 py-1.5 rounded-full border border-white/5 text-xs text-gray-400 font-bold">
-              <Grid className="w-3.5 h-3.5" />
-              <span>Category:</span>
-              <select 
-                defaultValue={catSlug} 
-                onChange={(e) => {
-                  const url = new URL(window.location.href)
-                  if (e.target.value) url.searchParams.set('category', e.target.value)
-                  else url.searchParams.delete('category')
-                  window.location.href = url.pathname + url.search
-                }}
-                className="bg-transparent text-white border-none outline-none font-bold cursor-pointer"
-              >
-                <option value="">All Categories</option>
-                {categories.map(c => (
-                  <option key={c.id} value={c.slug} className="bg-black text-white">{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Sort Filter */}
-            <div className="flex items-center space-x-1.5 bg-brand-card px-3 py-1.5 rounded-full border border-white/5 text-xs text-gray-400 font-bold">
-              <Flame className="w-3.5 h-3.5" />
-              <span>Sort:</span>
-              <select 
-                defaultValue={sortBy} 
-                onChange={(e) => {
-                  const url = new URL(window.location.href)
-                  url.searchParams.set('sort', e.target.value)
-                  window.location.href = url.pathname + url.search
-                }}
-                className="bg-transparent text-white border-none outline-none font-bold cursor-pointer"
-              >
-                <option value="latest" className="bg-black text-white">Latest Uploads</option>
-                <option value="popular" className="bg-black text-white">Most Viewed</option>
-              </select>
-            </div>
-          </div>
+          <SearchFilters 
+            query={query} 
+            catSlug={catSlug} 
+            sortBy={sortBy} 
+            categories={categories.map(c => ({ id: c.id, name: c.name, slug: c.slug }))} 
+          />
         </div>
 
         {/* Search Results Display */}

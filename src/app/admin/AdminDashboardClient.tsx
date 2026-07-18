@@ -62,6 +62,8 @@ export default function AdminDashboardClient() {
   // Settings metrics
   const [visitors, setVisitors] = useState('45000')
   const [revenue, setRevenue] = useState('1240.50')
+  const [cpmRate, setCpmRate] = useState('1.50')
+  const [realStats, setRealStats] = useState<any>(null)
 
   // Custom Ad Injections & Announcement states
   const [headAdCode, setHeadAdCode] = useState('')
@@ -460,12 +462,20 @@ export default function AdminDashboardClient() {
       setCategories(cats || [])
       setAds(adList || [])
 
+      // Fetch Real stats (views, unique visitors logs, etc.)
+      const statsRes = await fetch('/api/admin/stats')
+      if (statsRes.ok) {
+        const statsData = await statsRes.json()
+        setRealStats(statsData)
+      }
+
       // Load Settings values
       const settingsRes = await fetch('/api/settings')
       if (settingsRes.ok) {
         const settings = await settingsRes.json()
         if (settings.daily_visitors) setVisitors(settings.daily_visitors)
         if (settings.revenue_estimate) setRevenue(settings.revenue_estimate)
+        if (settings.cpm_rate) setCpmRate(settings.cpm_rate)
         if (settings.ad_injection_head) setHeadAdCode(settings.ad_injection_head)
         if (settings.ad_injection_body) setBodyAdCode(settings.ad_injection_body)
         if (settings.ad_injection_foot) setFootAdCode(settings.ad_injection_foot)
@@ -1020,6 +1030,7 @@ export default function AdminDashboardClient() {
           settings: {
             daily_visitors: visitors,
             revenue_estimate: revenue,
+            cpm_rate: cpmRate,
             ad_injection_head: headAdCode,
             ad_injection_body: bodyAdCode,
             ad_injection_foot: footAdCode,
@@ -1172,21 +1183,27 @@ export default function AdminDashboardClient() {
                     <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500"><Eye className="w-6 h-6" /></div>
                     <div>
                       <p className="text-[10px] uppercase font-bold text-gray-500">Total Views</p>
-                      <h4 className="text-xl font-black text-white">{totalViews.toLocaleString()}</h4>
+                      <h4 className="text-xl font-black text-white">
+                        {realStats ? realStats.totalViews.toLocaleString() : totalViews.toLocaleString()}
+                      </h4>
                     </div>
                   </div>
                   <div className="bg-brand-card p-5 border border-white/5 rounded-2xl flex items-center space-x-4">
                     <div className="p-3 bg-green-500/10 rounded-xl text-green-500"><Users className="w-6 h-6" /></div>
                     <div>
-                      <p className="text-[10px] uppercase font-bold text-gray-500">Daily Visitors</p>
-                      <h4 className="text-xl font-black text-white">{parseInt(visitors).toLocaleString()}</h4>
+                      <p className="text-[10px] uppercase font-bold text-gray-500">Real Visitors Today</p>
+                      <h4 className="text-xl font-black text-white font-mono">
+                        {realStats ? realStats.todayUnique.toLocaleString() : '...'}
+                      </h4>
                     </div>
                   </div>
                   <div className="bg-brand-card p-5 border border-white/5 rounded-2xl flex items-center space-x-4">
                     <div className="p-3 bg-yellow-500/10 rounded-xl text-yellow-500"><DollarSign className="w-6 h-6" /></div>
                     <div>
-                      <p className="text-[10px] uppercase font-bold text-gray-500">Est. Revenue</p>
-                      <h4 className="text-xl font-black text-white">${parseFloat(revenue).toLocaleString()}</h4>
+                      <p className="text-[10px] uppercase font-bold text-gray-500">Real Est. Revenue</p>
+                      <h4 className="text-xl font-black text-white font-mono">
+                        {realStats ? `$${realStats.estimatedRevenue}` : '...'}
+                      </h4>
                     </div>
                   </div>
                 </div>
@@ -1989,22 +2006,13 @@ export default function AdminDashboardClient() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Estimated Daily Visitors (Dashboard metric)</label>
-                    <input 
-                      type="number" 
-                      value={visitors} 
-                      onChange={(e) => setVisitors(e.target.value)}
-                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Estimated Revenue Estimate ($) (Dashboard metric)</label>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Ad Network CPM Rate ($ per 1,000 views)</label>
                     <input 
                       type="text" 
-                      value={revenue} 
-                      onChange={(e) => setRevenue(e.target.value)}
-                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary"
+                      value={cpmRate} 
+                      onChange={(e) => setCpmRate(e.target.value)}
+                      placeholder="1.50"
+                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-brand-primary font-mono"
                       required
                     />
                   </div>

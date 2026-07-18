@@ -129,3 +129,12 @@ model Comment {
   createdAt DateTime @default(now())
 }
 
+model VisitorLog {
+  id        String   @id @default(uuid())
+  date      String   // "YYYY-MM-DD"
+  ipHash    String   // Sha-256 hashed IP
+  createdAt DateTime @default(now())
+
+  @@unique([date, ipHash])
+}
+

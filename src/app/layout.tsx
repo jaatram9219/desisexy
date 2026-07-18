@@ -4,6 +4,7 @@ import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { dbService } from "@/lib/dbService";
 import PopupNotification from "@/components/PopupNotification";
+import { headers, cookies } from 'next/headers'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +28,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Check if this is the admin's own session to prevent tracking own views/visits
+  const cookieStore = await cookies()
+  const adminSessionToken = cookieStore.get('admin_session')?.value
+  const adminKey = process.env.ADMIN_SECRET_KEY || 'edb1e1d2340985f9b5c86dfafa10d5c3cbfb1fede40ee17097e4c35111aae50f'
+  const isAdmin = adminSessionToken && adminSessionToken === adminKey
+
+  if (!isAdmin) {
+    const headersList = await headers()
+    const rawIp = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || '127.0.0.1'
+    const ip = rawIp.split(',')[0].trim()
+    dbService.logVisit(ip).catch(err => console.error('Failed to log visit:', err))
+  }
+
   // Fetch raw HTML scripts / ad network snippets from Settings database
   const headCode = await dbService.getSetting("ad_injection_head", "");
   const bodyCode = await dbService.getSetting("ad_injection_body", "");
