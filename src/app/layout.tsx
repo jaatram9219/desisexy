@@ -43,10 +43,12 @@ export default async function RootLayout({
     dbService.logVisit(ip).catch(err => console.error('Failed to log visit:', err))
   }
 
-  // Fetch raw HTML scripts / ad network snippets from Settings database
-  const headCode = await dbService.getSetting("ad_injection_head", "");
-  const bodyCode = await dbService.getSetting("ad_injection_body", "");
-  const footCode = await dbService.getSetting("ad_injection_foot", "");
+  // Fetch raw HTML scripts / ad network snippets from Settings database in parallel
+  const [headCode, bodyCode, footCode] = await Promise.all([
+    dbService.getSetting("ad_injection_head", ""),
+    dbService.getSetting("ad_injection_body", ""),
+    dbService.getSetting("ad_injection_foot", "")
+  ]);
 
   return (
     <html

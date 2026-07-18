@@ -63,6 +63,9 @@ export interface Setting {
   value: string
 }
 
+// Simple in-memory cache for settings with 15-second TTL to optimize PageSpeed
+const settingsCache: Record<string, { value: string; expiresAt: number }> = {}
+
 export const dbService = {
   // --- CATEGORIES ---
   async getCategories(): Promise<Category[]> {
@@ -294,10 +297,17 @@ export const dbService = {
   },
 
   async getSetting(key: string, defaultValue: string): Promise<string> {
+    const now = Date.now()
+    const cached = settingsCache[key]
+    if (cached && cached.expiresAt > now) {
+      return cached.value
+    }
     const set = await prisma.setting.findUnique({
       where: { key }
     })
-    return set ? set.value : defaultValue
+    const val = set ? set.value : defaultValue
+    settingsCache[key] = { value: val, expiresAt: now + 15000 }
+    return val
   },
 
   async updateSetting(key: string, value: string): Promise<void> {
@@ -306,6 +316,8 @@ export const dbService = {
       update: { value },
       create: { key, value }
     })
+    // Write-through cache update
+    settingsCache[key] = { value, expiresAt: Date.now() + 15000 }
   },
 
   // --- USER PROFILE ---
