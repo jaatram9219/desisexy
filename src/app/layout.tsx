@@ -4,6 +4,8 @@ import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { dbService } from "@/lib/dbService";
 import PopupNotification from "@/components/PopupNotification";
+import AdsterraPopunder from "@/components/AdsterraPopunder";
+import StickyMobileBanner from "@/components/StickyMobileBanner";
 import { headers, cookies } from 'next/headers'
 
 const geistSans = Geist({
@@ -92,6 +94,10 @@ export default async function RootLayout({
           {children}
           {/* Visitor announcements/notification popup */}
           <PopupNotification />
+          {/* Global Smartlink popunder trigger */}
+          <AdsterraPopunder />
+          {/* Floating Mobile sticky banner */}
+          <StickyMobileBanner />
         </AppProvider>
 
         {/* Dynamic Footer Ad Script injection */}

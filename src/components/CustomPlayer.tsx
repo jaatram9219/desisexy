@@ -149,6 +149,15 @@ export default function CustomPlayer({
         fetch(`/api/ads/track?id=${pauseAdData.id}&type=impression`, { method: 'POST' }).catch(() => {})
       }
     } else {
+      // Smartlink Popunder click-interceptor for video play action
+      const popunderKey = `popunder_triggered_play_${url}`
+      if (typeof window !== 'undefined' && !sessionStorage.getItem(popunderKey)) {
+        sessionStorage.setItem(popunderKey, 'true')
+        const event = new CustomEvent('adsterra_player_play', { detail: { videoId: url } })
+        window.dispatchEvent(event)
+        return // Exit: do not play video on this click
+      }
+
       video.play()
       setIsPlaying(false)
       setIsPlaying(true)

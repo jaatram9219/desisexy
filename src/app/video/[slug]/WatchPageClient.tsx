@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Heart, Calendar, Tag, Link as LinkIcon, Check, ThumbsUp, ThumbsDown, MessageSquare, Trash2 } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import CustomPlayer from '@/components/CustomPlayer'
+import AdsterraBanner from '@/components/AdsterraBanner'
 import Link from 'next/link'
 import { Video } from '@/lib/dbService'
 import AuthModal from '@/components/AuthModal'
@@ -179,6 +180,15 @@ export default function WatchPageClient({ video, relatedVideos, categoryName }: 
         
         {/* Main Video & Content Column */}
         <div className="lg:col-span-2 space-y-6">
+          <div className="w-full flex justify-center">
+            <AdsterraBanner 
+              idKey="275226a3ed841a3dab633a417ce86719"
+              format="iframe"
+              height={60}
+              width={468}
+            />
+          </div>
+
           <CustomPlayer 
             url={video.url}
             format={video.format}
@@ -311,6 +321,16 @@ export default function WatchPageClient({ video, relatedVideos, categoryName }: 
             )}
           </div>
 
+          {/* 300x250 Adsterra Banner */}
+          <div className="w-full flex justify-center bg-brand-card border border-white/5 rounded-3xl p-4">
+            <AdsterraBanner 
+              idKey="8e2f32fa4ad805714fad7a0407cf71d6"
+              format="iframe"
+              height={250}
+              width={300}
+            />
+          </div>
+
           {/* Comments Section */}
           <div className="bg-brand-card border border-white/5 rounded-3xl p-5 sm:p-7 space-y-6">
             <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
@@ -402,6 +422,16 @@ export default function WatchPageClient({ video, relatedVideos, categoryName }: 
 
         {/* Sidebar Column: Related Videos */}
         <div className="space-y-4">
+          {/* 160x600 Adsterra Sidebar Banner */}
+          <div className="w-full flex justify-center bg-brand-card border border-white/5 rounded-3xl p-3">
+            <AdsterraBanner 
+              idKey="815b64f085f2d274179aa823059b9ec2"
+              format="iframe"
+              height={600}
+              width={160}
+            />
+          </div>
+
           <h2 className="text-sm font-bold text-white uppercase tracking-widest border-l-4 border-brand-accent pl-2.5">
             Related Videos
           </h2>
